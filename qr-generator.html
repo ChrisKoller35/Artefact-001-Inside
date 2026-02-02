@@ -1,0 +1,219 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>QR-Code Generator</title>
+    <script src="https://cdn.jsdelivr.net/npm/qrcode@1.5.3/build/qrcode.min.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 600px;
+            width: 100%;
+            text-align: center;
+            background: rgba(255, 255, 255, 0.05);
+            padding: 40px;
+            border-radius: 20px;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
+        }
+
+        h1 {
+            color: #e94560;
+            font-size: 2rem;
+            margin-bottom: 30px;
+        }
+
+        .input-group {
+            margin-bottom: 20px;
+        }
+
+        label {
+            display: block;
+            color: #fff;
+            margin-bottom: 10px;
+            font-size: 1.1rem;
+        }
+
+        input[type="text"] {
+            width: 100%;
+            padding: 15px;
+            font-size: 1rem;
+            border: none;
+            border-radius: 10px;
+            background: rgba(255, 255, 255, 0.1);
+            color: #fff;
+            outline: none;
+        }
+
+        input[type="text"]::placeholder {
+            color: #888;
+        }
+
+        input[type="text"]:focus {
+            background: rgba(255, 255, 255, 0.15);
+            box-shadow: 0 0 10px rgba(233, 69, 96, 0.3);
+        }
+
+        button {
+            background: #e94560;
+            color: #fff;
+            border: none;
+            padding: 15px 40px;
+            font-size: 1.1rem;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin-top: 10px;
+        }
+
+        button:hover {
+            background: #ff6b6b;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 20px rgba(233, 69, 96, 0.4);
+        }
+
+        .qr-container {
+            margin-top: 30px;
+            padding: 20px;
+            background: #fff;
+            border-radius: 15px;
+            display: inline-block;
+        }
+
+        #qrcode {
+            display: none;
+        }
+
+        #qrcode.visible {
+            display: block;
+        }
+
+        .instructions {
+            margin-top: 30px;
+            padding: 20px;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 10px;
+            text-align: left;
+        }
+
+        .instructions h3 {
+            color: #e94560;
+            margin-bottom: 15px;
+        }
+
+        .instructions ol {
+            color: #ccc;
+            padding-left: 20px;
+        }
+
+        .instructions li {
+            margin-bottom: 10px;
+            line-height: 1.5;
+        }
+
+        .download-btn {
+            background: #4CAF50;
+            margin-top: 15px;
+            display: none;
+        }
+
+        .download-btn.visible {
+            display: inline-block;
+        }
+
+        .download-btn:hover {
+            background: #66BB6A;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🔗 QR-Code Generator</h1>
+        
+        <div class="input-group">
+            <label for="url">URL zur Video-Seite:</label>
+            <input type="text" id="url" placeholder="https://deine-domain.com/index.html" />
+        </div>
+        
+        <button onclick="generateQR()">QR-Code generieren</button>
+        
+        <div class="qr-container">
+            <canvas id="qrcode"></canvas>
+        </div>
+        
+        <button class="download-btn" id="downloadBtn" onclick="downloadQR()">📥 QR-Code herunterladen</button>
+        
+        <div class="instructions">
+            <h3>📋 Anleitung:</h3>
+            <ol>
+                <li><strong>Hoste deine Dateien:</strong> Lade <code>index.html</code> und <code>Legendärekreatur.mp4</code> auf einen Webserver hoch (z.B. GitHub Pages, Netlify, oder einen eigenen Server).</li>
+                <li><strong>Kopiere die URL:</strong> Nachdem die Dateien gehostet sind, kopiere die vollständige URL zur <code>index.html</code> Seite.</li>
+                <li><strong>Generiere den QR-Code:</strong> Füge die URL oben ein und klicke auf "QR-Code generieren".</li>
+                <li><strong>Teile den QR-Code:</strong> Lade den QR-Code herunter und drucke ihn aus oder teile ihn digital.</li>
+                <li><strong>Scannen:</strong> Wenn jemand den QR-Code scannt, wird er direkt zur Video-Seite weitergeleitet!</li>
+            </ol>
+        </div>
+    </div>
+
+    <script>
+        function generateQR() {
+            const url = document.getElementById('url').value.trim();
+            
+            if (!url) {
+                alert('Bitte gib eine URL ein!');
+                return;
+            }
+            
+            const canvas = document.getElementById('qrcode');
+            
+            QRCode.toCanvas(canvas, url, {
+                width: 300,
+                margin: 2,
+                color: {
+                    dark: '#1a1a2e',
+                    light: '#ffffff'
+                }
+            }, function (error) {
+                if (error) {
+                    console.error(error);
+                    alert('Fehler beim Generieren des QR-Codes');
+                    return;
+                }
+                canvas.classList.add('visible');
+                document.getElementById('downloadBtn').classList.add('visible');
+            });
+        }
+
+        function downloadQR() {
+            const canvas = document.getElementById('qrcode');
+            const link = document.createElement('a');
+            link.download = 'siegel-von-flamront-qrcode.png';
+            link.href = canvas.toDataURL('image/png');
+            link.click();
+        }
+
+        // Enter-Taste zum Generieren
+        document.getElementById('url').addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                generateQR();
+            }
+        });
+    </script>
+</body>
+</html>
