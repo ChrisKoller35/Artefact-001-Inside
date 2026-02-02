@@ -100,7 +100,7 @@
         <h1>Legendäre Kreatur</h1>
         
         <div class="video-container">
-            <video controls autoplay muted playsinline preload="auto">
+            <video id="video" controls muted playsinline preload="auto" poster="">
                 <source src="./Legendaerekreatur.mp4" type="video/mp4">
                 Dein Browser unterstützt das Video-Tag nicht.
             </video>
@@ -108,5 +108,24 @@
         
         <p class="footer">© 2026 Siegel von Flamront</p>
     </div>
+
+    <script>
+        // Versuche Video automatisch abzuspielen
+        const video = document.getElementById('video');
+        
+        // Warte bis genug geladen ist
+        video.addEventListener('canplay', function() {
+            video.play().catch(function(error) {
+                console.log('Autoplay wurde blockiert, Nutzer muss auf Play klicken');
+            });
+        });
+
+        // Fallback: Bei Klick irgendwo auf der Seite starten
+        document.body.addEventListener('click', function() {
+            if (video.paused) {
+                video.play();
+            }
+        }, { once: true });
+    </script>
 </body>
 </html>
