@@ -51,6 +51,7 @@
             padding: 15px;
             box-shadow: 0 10px 40px rgba(233, 69, 96, 0.3);
             position: relative;
+            min-height: 200px;
         }
 
         .play-overlay {
@@ -138,8 +139,8 @@
         
         <div class="video-container">
             <div class="play-overlay" id="playBtn"></div>
-            <video id="video" controls muted playsinline preload="auto">
-                <source src="./Legendaerekreatur.mp4" type="video/mp4">
+            <video id="video" controls muted playsinline preload="metadata" width="100%" height="auto">
+                <source src="Legendaerekreatur.mp4" type="video/mp4">
                 Dein Browser unterstützt das Video-Tag nicht.
             </video>
         </div>
@@ -151,13 +152,23 @@
         const video = document.getElementById('video');
         const playBtn = document.getElementById('playBtn');
 
+        // Debug
+        console.log('Video Element:', video);
+        console.log('Video Source:', video.querySelector('source').src);
+
         // Play-Button klicken
         playBtn.addEventListener('click', function() {
-            video.play();
-            playBtn.classList.add('hidden');
+            console.log('Play button clicked');
+            video.load();
+            video.play().then(() => {
+                console.log('Video playing');
+                playBtn.classList.add('hidden');
+            }).catch(e => {
+                console.error('Play error:', e);
+            });
         });
 
-        // Video Controls auch ausblenden wenn Video spielt
+        // Video Events
         video.addEventListener('play', function() {
             playBtn.classList.add('hidden');
         });
@@ -166,14 +177,24 @@
             playBtn.classList.remove('hidden');
         });
 
-        // Versuche Autoplay
-        video.addEventListener('canplay', function() {
+        video.addEventListener('loadedmetadata', function() {
+            console.log('Video metadata loaded, duration:', video.duration);
+        });
+
+        video.addEventListener('error', function(e) {
+            console.error('Video error:', e);
+            console.error('Error code:', video.error);
+        });
+
+        // Versuche Autoplay nach kurzer Verzögerung
+        setTimeout(function() {
             video.play().then(function() {
                 playBtn.classList.add('hidden');
             }).catch(function(error) {
+                console.log('Autoplay blocked, showing play button');
                 playBtn.classList.remove('hidden');
             });
-        }, { once: true });
+        }, 500);
     </script>
 </body>
 </html>
