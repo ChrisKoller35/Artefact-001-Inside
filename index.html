@@ -50,6 +50,43 @@
             border-radius: 15px;
             padding: 15px;
             box-shadow: 0 10px 40px rgba(233, 69, 96, 0.3);
+            position: relative;
+        }
+
+        .play-overlay {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 80px;
+            height: 80px;
+            background: rgba(255, 107, 0, 0.9);
+            border-radius: 50%;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 10;
+            transition: all 0.3s ease;
+        }
+
+        .play-overlay:hover {
+            background: rgba(255, 165, 0, 1);
+            transform: translate(-50%, -50%) scale(1.1);
+        }
+
+        .play-overlay::after {
+            content: '';
+            width: 0;
+            height: 0;
+            border-left: 25px solid white;
+            border-top: 15px solid transparent;
+            border-bottom: 15px solid transparent;
+            margin-left: 5px;
+        }
+
+        .play-overlay.hidden {
+            display: none;
         }
 
         video {
@@ -100,7 +137,8 @@
         <h1>Legendäre Kreatur</h1>
         
         <div class="video-container">
-            <video id="video" controls muted playsinline preload="auto" poster="">
+            <div class="play-overlay" id="playBtn"></div>
+            <video id="video" controls muted playsinline preload="auto">
                 <source src="./Legendaerekreatur.mp4" type="video/mp4">
                 Dein Browser unterstützt das Video-Tag nicht.
             </video>
@@ -110,21 +148,31 @@
     </div>
 
     <script>
-        // Versuche Video automatisch abzuspielen
         const video = document.getElementById('video');
-        
-        // Warte bis genug geladen ist
-        video.addEventListener('canplay', function() {
-            video.play().catch(function(error) {
-                console.log('Autoplay wurde blockiert, Nutzer muss auf Play klicken');
-            });
+        const playBtn = document.getElementById('playBtn');
+
+        // Play-Button klicken
+        playBtn.addEventListener('click', function() {
+            video.play();
+            playBtn.classList.add('hidden');
         });
 
-        // Fallback: Bei Klick irgendwo auf der Seite starten
-        document.body.addEventListener('click', function() {
-            if (video.paused) {
-                video.play();
-            }
+        // Video Controls auch ausblenden wenn Video spielt
+        video.addEventListener('play', function() {
+            playBtn.classList.add('hidden');
+        });
+
+        video.addEventListener('pause', function() {
+            playBtn.classList.remove('hidden');
+        });
+
+        // Versuche Autoplay
+        video.addEventListener('canplay', function() {
+            video.play().then(function() {
+                playBtn.classList.add('hidden');
+            }).catch(function(error) {
+                playBtn.classList.remove('hidden');
+            });
         }, { once: true });
     </script>
 </body>
